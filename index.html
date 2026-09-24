@@ -1,0 +1,1356 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Genetik Blox · Roblox Edition</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Comic Sans MS', 'Segoe UI', 'Roboto', system-ui, sans-serif;
+      background: #0d0d1a;
+      background-image: 
+        radial-gradient(circle at 15% 15%, #2a2a5a 0%, transparent 50%),
+        radial-gradient(circle at 85% 85%, #5a1a5a 0%, transparent 50%),
+        linear-gradient(180deg, #1a1a3a 0%, #0a0a1a 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px;
+      color: #ffffff;
+    }
+
+    .webgel-wrapper {
+      max-width: 420px;
+      width: 100%;
+      margin: 0 auto;
+      background: #1e1e2e;
+      background-image: linear-gradient(145deg, rgba(100,100,200,0.1) 0%, transparent 60%);
+      border-radius: 16px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.8), 0 0 0 3px #3a3a6a inset, 0 0 25px rgba(0,162,255,0.3);
+      border: 2px solid #4a4a8a;
+      overflow: hidden;
+      padding: 14px 10px;
+      position: relative;
+    }
+
+    .webgel-wrapper::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background-image: 
+        linear-gradient(45deg, rgba(255,255,255,0.02) 25%, transparent 25%),
+        linear-gradient(-45deg, rgba(255,255,255,0.02) 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, rgba(255,255,255,0.02) 75%),
+        linear-gradient(-45deg, transparent 75%, rgba(255,255,255,0.02) 75%);
+      background-size: 20px 20px;
+      pointer-events: none;
+      opacity: 0.5;
+    }
+
+    h1, h2, h3 {
+      font-family: 'Comic Sans MS', 'Trebuchet MS', sans-serif;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      font-weight: 900;
+    }
+
+    .header {
+      text-align: center;
+      border-bottom: 3px solid #4a4a8a;
+      padding-bottom: 10px;
+      margin-bottom: 14px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .header h1 {
+      font-size: 1.6rem;
+      color: #ffffff;
+      text-shadow: 3px 3px 0 #0055aa, -1px -1px 0 #000, 0 0 15px rgba(0,162,255,0.8);
+      letter-spacing: 2px;
+      font-weight: 900;
+    }
+
+    .header p {
+      font-size: 0.7rem;
+      color: #aaccff;
+      margin-top: 4px;
+      font-style: italic;
+      letter-spacing: 1px;
+    }
+
+    .badge {
+      display: inline-block;
+      background: linear-gradient(180deg, #00a2ff 0%, #0066cc 100%);
+      border: 2px solid #ffffff;
+      border-radius: 6px;
+      padding: 3px 10px;
+      font-size: 0.6rem;
+      color: #ffffff;
+      letter-spacing: 2px;
+      font-weight: bold;
+      margin-top: 6px;
+      box-shadow: 0 3px 0 #003d7a;
+      text-transform: uppercase;
+    }
+
+    /* === GAME WORLD === */
+    .game-world {
+      background: linear-gradient(180deg, #252545 0%, #151530 100%);
+      border: 3px solid #5a5a9a;
+      border-radius: 12px;
+      padding: 6px;
+      margin-bottom: 10px;
+      box-shadow: 0 6px 0 #15152a, inset 0 2px 0 rgba(255,255,255,0.1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .game-world::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background-image: 
+        linear-gradient(rgba(0,162,255,0.08) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,162,255,0.08) 1px, transparent 1px);
+      background-size: 28px 28px;
+      pointer-events: none;
+    }
+
+    .world-label {
+      position: absolute;
+      top: 4px; left: 8px;
+      font-size: 0.55rem;
+      color: #00d4ff;
+      letter-spacing: 2px;
+      font-weight: bold;
+      text-shadow: 1px 1px 0 rgba(0,0,0,0.5);
+      z-index: 5;
+    }
+
+    #gameCanvas {
+      display: block;
+      width: 100%;
+      height: 200px;
+      border-radius: 8px;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* === BLOXY SPRITE === */
+    .bloxy-sprite {
+      position: absolute;
+      width: 38px;
+      height: 50px;
+      transition: left 0.05s linear, top 0.05s linear;
+      z-index: 3;
+      filter: drop-shadow(0 3px 4px rgba(0,0,0,0.5));
+    }
+
+    .bloxy-sprite.walking { animation: walkBob 0.3s ease infinite; }
+
+    .bloxy-head {
+      width: 28px; height: 28px;
+      background: linear-gradient(180deg, #ffd699 0%, #ffb84d 100%);
+      border: 2px solid #1a1a2e;
+      border-radius: 6px;
+      margin: 0 auto;
+      position: relative;
+      box-shadow: inset -3px -3px 0 rgba(0,0,0,0.15);
+    }
+
+    .bloxy-hair {
+      position: absolute;
+      top: -5px; left: -2px;
+      width: 32px; height: 12px;
+      background: linear-gradient(180deg, #4a2a0a 0%, #2a1505 100%);
+      border: 2px solid #1a1a2e;
+      border-radius: 6px 6px 0 0;
+      z-index: 2;
+    }
+
+    .bloxy-eye {
+      position: absolute;
+      width: 5px; height: 5px;
+      background: #1a1a2e;
+      border-radius: 1px;
+      top: 10px;
+    }
+    .bloxy-eye.left { left: 5px; }
+    .bloxy-eye.right { right: 5px; }
+    .bloxy-eye::after {
+      content: ""; position: absolute;
+      width: 2px; height: 2px;
+      background: #ffffff;
+      top: 1px; left: 1px;
+    }
+
+    .bloxy-mouth {
+      position: absolute;
+      bottom: 4px; left: 50%;
+      transform: translateX(-50%);
+      width: 8px; height: 2px;
+      background: #1a1a2e;
+      border-radius: 0 0 2px 2px;
+    }
+
+    .bloxy-body {
+      width: 24px; height: 16px;
+      background: linear-gradient(180deg, #00a2ff 0%, #0066cc 100%);
+      border: 2px solid #1a1a2e;
+      border-radius: 4px;
+      margin: -2px auto 0;
+      position: relative;
+    }
+
+    .bloxy-body::after {
+      content: "🧬";
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 0.45rem;
+    }
+
+    .bloxy-legs {
+      display: flex;
+      justify-content: center;
+      gap: 2px;
+      margin-top: -2px;
+    }
+
+    .bloxy-leg {
+      width: 8px; height: 8px;
+      background: linear-gradient(180deg, #2a2a5a 0%, #1a1a3a 100%);
+      border: 2px solid #1a1a2e;
+      border-radius: 0 0 3px 3px;
+    }
+
+    @keyframes walkBob {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-2px); }
+    }
+
+    /* === PORTAL === */
+    .question-portal {
+      position: absolute;
+      width: 56px; height: 56px;
+      background: radial-gradient(circle, #ffd700 0%, #ff8800 60%, transparent 70%);
+      border: 3px dashed #ffffff;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+      z-index: 2;
+      animation: portalPulse 1.5s ease infinite;
+      box-shadow: 0 0 20px #ffd700, 0 0 40px #ff8800;
+    }
+
+    @keyframes portalPulse {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.1); opacity: 0.85; }
+    }
+
+    .question-portal.reached {
+      background: radial-gradient(circle, #00ff55 0%, #009933 60%, transparent 70%);
+      border-color: #aaffaa;
+      box-shadow: 0 0 25px #00ff55, 0 0 50px #009933;
+      animation: none;
+    }
+
+    /* === WORLD BUBBLE === */
+    .world-bubble {
+      position: absolute;
+      bottom: 4px; left: 50%;
+      transform: translateX(-50%);
+      background: #ffffff;
+      border: 2px solid #1a1a2e;
+      border-radius: 8px;
+      padding: 4px 8px;
+      font-size: 0.6rem;
+      font-weight: bold;
+      color: #1a1a2e;
+      max-width: 92%;
+      text-align: center;
+      z-index: 6;
+      box-shadow: 0 3px 0 #1a1a2e;
+      line-height: 1.3;
+    }
+
+    /* === KONTROL === */
+    .controls-wrapper {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .dpad {
+      display: grid;
+      grid-template-columns: repeat(3, 36px);
+      grid-template-rows: repeat(3, 36px);
+      gap: 3px;
+      flex-shrink: 0;
+    }
+
+    .dpad-btn {
+      background: linear-gradient(180deg, #4a4a7a 0%, #2a2a4a 100%);
+      border: 2px solid #6a6aaa;
+      border-radius: 8px;
+      color: #00d4ff;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 3px 0 #15152a;
+      transition: all 0.08s ease;
+      font-family: 'Comic Sans MS', sans-serif;
+      user-select: none;
+      touch-action: manipulation;
+    }
+
+    .dpad-btn:active, .dpad-btn.pressed {
+      transform: translateY(2px);
+      box-shadow: 0 1px 0 #15152a;
+      background: linear-gradient(180deg, #00a2ff 0%, #0066cc 100%);
+      color: #ffffff;
+    }
+
+    .dpad-btn.empty { visibility: hidden; }
+
+    .dpad-up { grid-column: 2; grid-row: 1; }
+    .dpad-left { grid-column: 1; grid-row: 2; }
+    .dpad-down { grid-column: 2; grid-row: 3; }
+    .dpad-right { grid-column: 3; grid-row: 2; }
+
+    .status-panel {
+      flex: 1;
+      background: #1a1a2e;
+      border: 2px solid #4a4a8a;
+      border-radius: 8px;
+      padding: 8px 6px;
+      text-align: center;
+      font-size: 0.65rem;
+      color: #aaccff;
+      min-height: 76px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 3px;
+    }
+
+    .status-panel .distance {
+      font-size: 1rem;
+      font-weight: bold;
+      color: #00d4ff;
+      text-shadow: 0 0 8px rgba(0,212,255,0.6);
+    }
+
+    .status-panel .hint {
+      font-size: 0.58rem;
+      color: #ffd700;
+      font-style: italic;
+    }
+
+    /* === CARD SOAL === */
+    .card {
+      background: #2a2a4a;
+      background-image: linear-gradient(180deg, #3a3a5a 0%, #252540 100%);
+      border: 3px solid #5a5a9a;
+      border-radius: 12px;
+      padding: 14px 12px;
+      margin-bottom: 10px;
+      box-shadow: 0 6px 0 #15152a, inset 0 2px 0 rgba(255,255,255,0.1);
+      position: relative;
+      color: #ffffff;
+    }
+
+    .card.locked {
+      opacity: 0.35;
+      pointer-events: none;
+      filter: grayscale(0.7);
+    }
+
+    .card.locked::after {
+      content: "🔒 DEKATI PORTAL ❓";
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      background: #1a1a2e;
+      color: #ffd700;
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-size: 0.7rem;
+      font-weight: bold;
+      border: 2px solid #ffd700;
+      letter-spacing: 1px;
+      text-align: center;
+      z-index: 10;
+      box-shadow: 0 0 15px rgba(255,215,0,0.5);
+      white-space: nowrap;
+    }
+
+    .question-box {
+      background: #1a1a2e;
+      border: 2px solid #4a4a8a;
+      border-radius: 8px;
+      padding: 12px 10px;
+      font-size: 0.88rem;
+      line-height: 1.5;
+      margin-bottom: 14px;
+      color: #ffffff;
+      font-weight: 600;
+      box-shadow: inset 0 2px 8px rgba(0,0,0,0.5);
+    }
+
+    .question-box::before {
+      content: "📦 QUEST: ";
+      font-weight: bold;
+      color: #00d4ff;
+      font-size: 0.75rem;
+      letter-spacing: 1px;
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    .options {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      margin-bottom: 8px;
+    }
+
+    .option-btn {
+      background: linear-gradient(180deg, #4a4a7a 0%, #2a2a4a 100%);
+      border: 3px solid #6a6aaa;
+      border-radius: 8px;
+      padding: 11px 12px;
+      color: #ffffff;
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-align: left;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transition: all 0.1s ease;
+      cursor: pointer;
+      box-shadow: 0 4px 0 #15152a;
+      font-family: 'Comic Sans MS', sans-serif;
+    }
+
+    .option-btn:active { transform: translateY(3px); box-shadow: 0 1px 0 #15152a; }
+    .option-btn.selected {
+      background: linear-gradient(180deg, #00a2ff 0%, #0066cc 100%);
+      border-color: #ffffff;
+      box-shadow: 0 0 15px #00a2ff, 0 4px 0 #003d7a;
+    }
+    .option-btn.correct {
+      background: linear-gradient(180deg, #00d455 0%, #009933 100%);
+      border-color: #aaffaa;
+      box-shadow: 0 0 15px #00ff55, 0 4px 0 #005522;
+    }
+    .option-btn.wrong {
+      background: linear-gradient(180deg, #ff4444 0%, #aa0000 100%);
+      border-color: #ffaaaa;
+      box-shadow: 0 0 15px #ff0000, 0 4px 0 #550000;
+    }
+    .option-btn.disabled { pointer-events: none; opacity: 0.85; }
+
+    .letter {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 26px; height: 26px;
+      background: #1a1a2e;
+      border-radius: 6px;
+      border: 2px solid #6a6aaa;
+      font-weight: bold;
+      color: #00d4ff;
+      font-size: 0.85rem;
+      flex-shrink: 0;
+    }
+
+    .action-btn {
+      width: 100%;
+      background: linear-gradient(180deg, #00d455 0%, #009933 100%);
+      border: 3px solid #ffffff;
+      border-radius: 10px;
+      padding: 13px;
+      font-weight: 900;
+      font-size: 0.95rem;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: #ffffff;
+      transition: 0.1s linear;
+      cursor: pointer;
+      margin-top: 8px;
+      font-family: 'Comic Sans MS', sans-serif;
+      box-shadow: 0 5px 0 #005522, 0 0 15px rgba(0,212,85,0.5);
+      text-shadow: 1px 1px 0 rgba(0,0,0,0.3);
+    }
+
+    .action-btn:active { transform: translateY(3px); box-shadow: 0 2px 0 #005522; }
+    .action-btn:disabled { opacity: 0.4; transform: none; pointer-events: none; box-shadow: 0 5px 0 #005522; }
+
+    /* === PROGRESS === */
+    .progress-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      font-size: 0.7rem;
+      color: #ffffff;
+      background: #1a1a2e;
+      padding: 7px 12px;
+      border-radius: 8px;
+      border: 2px solid #4a4a8a;
+      font-weight: bold;
+      letter-spacing: 1px;
+    }
+
+    .score-badge {
+      background: linear-gradient(180deg, #ffd700 0%, #cc9900 100%);
+      padding: 3px 10px;
+      border-radius: 6px;
+      color: #ffffff;
+      font-weight: 900;
+      border: 2px solid #ffffff;
+      box-shadow: 0 2px 0 #664d00;
+      font-size: 0.75rem;
+      text-shadow: 1px 1px 0 rgba(0,0,0,0.3);
+    }
+
+    /* === FORM IDENTITAS === */
+    .student-form {
+      background: linear-gradient(180deg, #3a3a5a 0%, #252540 100%);
+      border: 3px solid #5a5a9a;
+      border-radius: 12px;
+      padding: 18px 14px;
+      box-shadow: 0 6px 0 #15152a, inset 0 2px 0 rgba(255,255,255,0.1);
+      color: #ffffff;
+      position: relative;
+      z-index: 2;
+    }
+
+    .form-title {
+      font-size: 1rem;
+      color: #ffffff;
+      text-align: center;
+      margin-bottom: 6px;
+      letter-spacing: 2px;
+      font-weight: 900;
+      text-shadow: 2px 2px 0 #0055aa, 0 0 10px rgba(0,162,255,0.6);
+    }
+
+    .form-subtitle {
+      font-size: 0.65rem;
+      color: #aaccff;
+      text-align: center;
+      margin-bottom: 16px;
+      font-style: italic;
+      border-bottom: 2px dashed #4a4a8a;
+      padding-bottom: 10px;
+      letter-spacing: 1px;
+    }
+
+    .form-group { margin-bottom: 12px; }
+
+    .form-group label {
+      display: block;
+      font-size: 0.7rem;
+      color: #00d4ff;
+      margin-bottom: 6px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      font-weight: bold;
+      text-shadow: 1px 1px 0 rgba(0,0,0,0.5);
+    }
+
+    .form-group input {
+      width: 100%;
+      background: #1a1a2e;
+      border: 3px solid #4a4a8a;
+      border-radius: 8px;
+      padding: 10px 12px;
+      color: #ffffff;
+      font-size: 0.9rem;
+      font-family: 'Comic Sans MS', sans-serif;
+      outline: none;
+      transition: all 0.2s ease;
+      box-shadow: inset 0 2px 6px rgba(0,0,0,0.5);
+    }
+
+    .form-group input:focus {
+      border-color: #00d4ff;
+      box-shadow: inset 0 2px 6px rgba(0,0,0,0.5), 0 0 12px rgba(0,212,255,0.6);
+    }
+
+    .form-group input::placeholder { color: #6a6a9a; font-style: italic; }
+
+    .error-text {
+      color: #ff6666;
+      font-size: 0.7rem;
+      margin-top: 4px;
+      display: none;
+      font-style: italic;
+      font-weight: bold;
+      text-shadow: 1px 1px 0 rgba(0,0,0,0.5);
+    }
+
+    .error-text.show { display: block; }
+
+    /* === SERTIFIKAT === */
+    .certificate-container {
+      background: linear-gradient(180deg, #ffffff 0%, #e6f2ff 100%);
+      border-radius: 12px;
+      padding: 18px 14px;
+      border: 4px solid #00a2ff;
+      box-shadow: 0 0 0 3px #ffffff, 0 10px 25px rgba(0,0,0,0.7), 0 0 30px rgba(0,162,255,0.5);
+      color: #1a1a3a;
+      font-family: 'Comic Sans MS', sans-serif;
+      margin-top: 10px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .certificate-container::before {
+      content: "";
+      position: absolute;
+      top: -50%; left: -50%;
+      width: 200%; height: 200%;
+      background: repeating-conic-gradient(from 0deg, rgba(0,162,255,0.05) 0deg 15deg, transparent 15deg 30deg);
+      pointer-events: none;
+    }
+
+    .certificate-title {
+      font-size: 1rem;
+      font-weight: 900;
+      letter-spacing: 2px;
+      color: #ffffff;
+      text-transform: uppercase;
+      background: linear-gradient(180deg, #00a2ff 0%, #0066cc 100%);
+      padding: 8px 12px;
+      border-radius: 8px;
+      margin-bottom: 14px;
+      text-shadow: 2px 2px 0 rgba(0,0,0,0.3);
+      box-shadow: 0 3px 0 #003d7a;
+      position: relative;
+      z-index: 1;
+    }
+
+    .certificate-stamp {
+      display: inline-block;
+      background: linear-gradient(180deg, #ffd700 0%, #cc9900 100%);
+      color: #ffffff;
+      padding: 4px 14px;
+      font-size: 0.6rem;
+      letter-spacing: 2px;
+      border-radius: 6px;
+      margin-bottom: 10px;
+      font-weight: 900;
+      border: 2px solid #ffffff;
+      box-shadow: 0 2px 0 #664d00;
+      transform: rotate(-2deg);
+      position: relative;
+      z-index: 1;
+      text-shadow: 1px 1px 0 rgba(0,0,0,0.3);
+    }
+
+    .certificate-name {
+      font-size: 1.5rem;
+      font-weight: 900;
+      color: #0066cc;
+      margin: 10px 0 4px;
+      text-decoration: underline;
+      text-decoration-color: #00a2ff;
+      text-underline-offset: 6px;
+      word-break: break-word;
+      letter-spacing: 1px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .certificate-kelas {
+      font-size: 0.95rem;
+      font-weight: bold;
+      color: #3a3a5a;
+      margin: 6px 0 10px;
+      letter-spacing: 1px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .certificate-predikat {
+      font-size: 1rem;
+      font-weight: 900;
+      background: linear-gradient(180deg, #00d455 0%, #009933 100%);
+      display: inline-block;
+      padding: 8px 20px;
+      border-radius: 8px;
+      color: #ffffff;
+      margin: 10px 0;
+      letter-spacing: 2px;
+      border: 3px solid #ffffff;
+      box-shadow: 0 4px 0 #005522;
+      position: relative;
+      z-index: 1;
+      text-shadow: 1px 1px 0 rgba(0,0,0,0.3);
+    }
+
+    .certificate-nilai {
+      font-size: 2.2rem;
+      font-weight: 900;
+      color: #ffd700;
+      margin: 6px 0;
+      text-shadow: 2px 2px 0 #cc9900, -1px -1px 0 #000, 0 0 15px rgba(255,215,0,0.6);
+      position: relative;
+      z-index: 1;
+    }
+
+    .cert-bloxy {
+      display: flex;
+      justify-content: center;
+      margin: 12px 0;
+      position: relative;
+      z-index: 1;
+    }
+
+    .cert-bloxy .bloxy-sprite {
+      position: relative;
+      left: auto !important;
+      top: auto !important;
+      transform: scale(1.3);
+    }
+
+    .certificate-footer {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      margin-top: 20px;
+      font-size: 0.85rem;
+      color: #3a3a5a;
+      position: relative;
+      z-index: 1;
+    }
+
+    .signature {
+      font-family: 'Brush Script MT', cursive;
+      font-size: 1.7rem;
+      color: #0066cc;
+      transform: rotate(-4deg);
+      margin-top: 4px;
+      border-bottom: 2px solid #00a2ff;
+      padding: 0 12px 4px 12px;
+      display: inline-block;
+    }
+
+    .teacher-name {
+      font-weight: 900;
+      margin-top: 4px;
+      border-top: 2px dashed #00a2ff;
+      padding-top: 6px;
+      font-size: 0.75rem;
+      letter-spacing: 1px;
+      color: #0066cc;
+    }
+
+    .hidden { display: none; }
+
+    .small-note {
+      font-size: 0.6rem;
+      color: #6a6a9a;
+      text-align: center;
+      margin-top: 10px;
+      border-top: 2px solid #3a3a5a;
+      padding-top: 8px;
+      letter-spacing: 1px;
+    }
+
+    .robux-box {
+      background: linear-gradient(180deg, #3a3a5a 0%, #252540 100%);
+      border: 3px solid #ffd700;
+      border-radius: 10px;
+      padding: 10px 14px;
+      margin-bottom: 12px;
+      font-size: 0.7rem;
+      color: #ffd700;
+      text-align: center;
+      font-style: italic;
+      font-weight: bold;
+      box-shadow: inset 0 0 15px rgba(255,215,0,0.2), 0 3px 0 #15152a;
+      letter-spacing: 1px;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .fade-in { animation: fadeIn 0.4s ease-out; }
+
+    @media (max-width: 420px) {
+      .webgel-wrapper { padding: 10px 8px; }
+      .option-btn { padding: 10px; font-size: 0.8rem; }
+      .header h1 { font-size: 1.4rem; }
+      .dpad { grid-template-columns: repeat(3, 34px); grid-template-rows: repeat(3, 34px); }
+      #gameCanvas { height: 180px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="webgel-wrapper" id="app">
+    <!-- Header -->
+    <div class="header">
+      <h1>🎮 GENETIK BLOX 🎮</h1>
+      <p>◆ ROBLOX EDITION · SUBSTANSI MATERI GENETIK ◆</p>
+      <span class="badge">⭐ EXPERIENCE · 100% FREE ⭐</span>
+    </div>
+
+    <!-- === FORM IDENTITAS === -->
+    <div id="studentFormCard" class="student-form fade-in">
+      <div class="form-title">🧑‍🚀 BUAT AVATAR 🧑‍🚀</div>
+      <div class="form-subtitle">Daftar dulu sebelum masuk experience!</div>
+
+      <div class="form-group">
+        <label for="inputNama">Username</label>
+        <input type="text" id="inputNama" placeholder="cth: Builderman123" maxlength="40" autocomplete="off">
+        <div class="error-text" id="errorNama">⚠ Username wajib diisi!</div>
+      </div>
+
+      <div class="form-group">
+        <label for="inputKelas">Grup / Kelas</label>
+        <input type="text" id="inputKelas" placeholder="cth: XII IPA 1" maxlength="20" autocomplete="off">
+        <div class="error-text" id="errorKelas">⚠ Grup wajib diisi!</div>
+      </div>
+
+      <div class="robux-box">💰 "Buat avatar dulu, nanti dapat Robux!"</div>
+
+      <button class="action-btn" id="startBtn">▶ PLAY</button>
+    </div>
+
+    <!-- Progress & Score -->
+    <div class="progress-container hidden" id="progressContainer">
+      <span id="questionCounter">QUEST 1/5</span>
+      <span class="score-badge" id="scoreDisplay">💰 0 R$</span>
+    </div>
+
+    <!-- === GAME WORLD === -->
+    <div class="game-world hidden" id="gameWorld">
+      <span class="world-label">🗺 MAP: LABORATORIUM GENETIKA</span>
+      <div id="gameCanvas">
+        <div class="question-portal" id="questionPortal">❓</div>
+        <div class="bloxy-sprite" id="bloxySprite">
+          <div class="bloxy-head">
+            <div class="bloxy-hair"></div>
+            <div class="bloxy-eye left"></div>
+            <div class="bloxy-eye right"></div>
+            <div class="bloxy-mouth"></div>
+          </div>
+          <div class="bloxy-body"></div>
+          <div class="bloxy-legs">
+            <div class="bloxy-leg"></div>
+            <div class="bloxy-leg"></div>
+          </div>
+        </div>
+        <div class="world-bubble" id="worldBubble">Ayo bergerak ke portal ❓!</div>
+      </div>
+    </div>
+
+    <!-- === KONTROL ARAH === -->
+    <div class="controls-wrapper hidden" id="controlsWrapper">
+      <div class="dpad">
+        <div class="dpad-btn empty"></div>
+        <div class="dpad-btn dpad-up" data-dir="up">▲</div>
+        <div class="dpad-btn empty"></div>
+        <div class="dpad-btn dpad-left" data-dir="left">◀</div>
+        <div class="dpad-btn empty"></div>
+        <div class="dpad-btn dpad-right" data-dir="right">▶</div>
+        <div class="dpad-btn empty"></div>
+        <div class="dpad-btn dpad-down" data-dir="down">▼</div>
+        <div class="dpad-btn empty"></div>
+      </div>
+      <div class="status-panel">
+        <div>Jarak ke portal:</div>
+        <div class="distance" id="distanceDisplay">0 m</div>
+        <div class="hint">Gunakan D-Pad / Arrow Keys</div>
+      </div>
+    </div>
+
+    <!-- Main Quiz Card -->
+    <div id="quizCard" class="card hidden locked">
+      <div class="question-box" id="questionText">Memuat quest...</div>
+      <div class="options" id="optionsContainer"></div>
+      <button class="action-btn" id="nextBtn" disabled>KONFIRMASI</button>
+    </div>
+
+    <!-- Certificate Card -->
+    <div id="certificateCard" class="hidden">
+      <div class="certificate-container" id="certificateContent"></div>
+      <button class="action-btn" id="restartBtn" style="margin-top: 14px; background: linear-gradient(180deg, #ff8800 0%, #cc5500 100%); border-bottom-color: #663300;">🔄 MAIN LAGI</button>
+    </div>
+
+    <div class="small-note">⚠ DATA TERSIMPAN DI JSON · ROBLOX CORP</div>
+  </div>
+
+  <script>
+    (function(){
+      // === DATA SOAL ===
+      const questions = [
+        { id: 1, text: "Apa hubungan antara gen, DNA, dan kromosom?",
+          options: [
+            { letter: 'A', text: 'Gen adalah bagian dari DNA, DNA membentuk kromosom.' },
+            { letter: 'B', text: 'Kromosom tersusun dari gen, gen tersusun dari DNA.' },
+            { letter: 'C', text: 'DNA adalah bagian dari gen, gen membentuk kromosom.' },
+            { letter: 'D', text: 'Gen dan DNA terpisah, kromosom hanya pelindung.' }
+          ], correct: 0, explanation: 'Gen → segmen DNA, DNA → membentuk kromosom.' },
+        { id: 2, text: "Urutan tingkat organisasi materi genetik dari yang paling kecil adalah ...",
+          options: [
+            { letter: 'A', text: 'Kromosom → DNA → Gen → Nukleotida' },
+            { letter: 'B', text: 'Nukleotida → Gen → DNA → Kromosom' },
+            { letter: 'C', text: 'Gen → Nukleotida → DNA → Kromosom' },
+            { letter: 'D', text: 'DNA → Gen → Kromosom → Nukleotida' }
+          ], correct: 1, explanation: 'Nukleotida → Gen → DNA → Kromosom.' },
+        { id: 3, text: "Manakah pernyataan yang BENAR tentang kromosom?",
+          options: [
+            { letter: 'A', text: 'Kromosom hanya terdapat pada sel eukariotik.' },
+            { letter: 'B', text: 'Kromosom tersusun dari protein histon dan DNA.' },
+            { letter: 'C', text: 'Kromosom tidak mengandung gen.' },
+            { letter: 'D', text: 'Kromosom adalah molekul tunggal DNA tanpa protein.' }
+          ], correct: 1, explanation: 'Kromosom = DNA + protein histon.' },
+        { id: 4, text: "Gen memiliki fungsi utama sebagai ...",
+          options: [
+            { letter: 'A', text: 'Penyimpan energi sel' },
+            { letter: 'B', text: 'Pembawa informasi genetik' },
+            { letter: 'C', text: 'Struktur pelindung DNA' },
+            { letter: 'D', text: 'Enzim metabolisme' }
+          ], correct: 1, explanation: 'Gen membawa informasi genetik (kode protein).' },
+        { id: 5, text: "Jika DNA adalah 'buku resep', maka gen adalah ...",
+          options: [
+            { letter: 'A', text: 'Sampul buku' },
+            { letter: 'B', text: 'Halaman buku' },
+            { letter: 'C', text: 'Satu resep tertentu' },
+            { letter: 'D', text: 'Rak buku' }
+          ], correct: 2, explanation: 'Gen = satu resep (segmen DNA).' }
+      ];
+
+      // === STATE ===
+      let currentQuestionIndex = 0;
+      let score = 0;
+      let selectedOptionIndex = null;
+      let answered = false;
+      let studentName = "";
+      let studentClass = "";
+
+      // === STATE KARAKTER ===
+      const SPRITE_W = 38, SPRITE_H = 50, PORTAL_W = 56, PORTAL_H = 56;
+      const MOVE_STEP = 12;
+      let bloxyX = 15, bloxyY = 130;
+      let portalX = 280, portalY = 20;
+      let hasReachedPortal = false;
+
+      // === ELEMEN ===
+      const questionTextEl = document.getElementById('questionText');
+      const optionsContainer = document.getElementById('optionsContainer');
+      const nextBtn = document.getElementById('nextBtn');
+      const questionCounter = document.getElementById('questionCounter');
+      const scoreDisplay = document.getElementById('scoreDisplay');
+      const quizCard = document.getElementById('quizCard');
+      const certificateCard = document.getElementById('certificateCard');
+      const certificateContent = document.getElementById('certificateContent');
+      const restartBtn = document.getElementById('restartBtn');
+      const studentFormCard = document.getElementById('studentFormCard');
+      const inputNama = document.getElementById('inputNama');
+      const inputKelas = document.getElementById('inputKelas');
+      const errorNama = document.getElementById('errorNama');
+      const errorKelas = document.getElementById('errorKelas');
+      const startBtn = document.getElementById('startBtn');
+      const progressContainer = document.getElementById('progressContainer');
+      const gameWorld = document.getElementById('gameWorld');
+      const gameCanvas = document.getElementById('gameCanvas');
+      const bloxySprite = document.getElementById('bloxySprite');
+      const questionPortal = document.getElementById('questionPortal');
+      const worldBubble = document.getElementById('worldBubble');
+      const controlsWrapper = document.getElementById('controlsWrapper');
+      const distanceDisplay = document.getElementById('distanceDisplay');
+
+      // === RANDOM PORTAL POSITION ===
+      function randomPortalPosition() {
+        const cw = gameCanvas.clientWidth || 360;
+        const ch = gameCanvas.clientHeight || 200;
+        const maxX = cw - PORTAL_W - 8;
+        const maxY = ch - PORTAL_H - 25;
+        let newX, newY, tries = 0;
+        do {
+          newX = 8 + Math.random() * (maxX - 8);
+          newY = 8 + Math.random() * (maxY - 8);
+          tries++;
+        } while (Math.hypot(newX - bloxyX, newY - bloxyY) < 100 && tries < 20);
+        portalX = newX;
+        portalY = newY;
+      }
+
+      // === UPDATE POSISI ===
+      function updateSpritePosition() {
+        bloxySprite.style.left = bloxyX + 'px';
+        bloxySprite.style.top = bloxyY + 'px';
+      }
+
+      function updatePortalPosition() {
+        questionPortal.style.left = portalX + 'px';
+        questionPortal.style.top = portalY + 'px';
+      }
+
+      function updateDistance() {
+        const bcx = bloxyX + SPRITE_W / 2;
+        const bcy = bloxyY + SPRITE_H / 2;
+        const pcx = portalX + PORTAL_W / 2;
+        const pcy = portalY + PORTAL_H / 2;
+        const dist = Math.hypot(pcx - bcx, pcy - bcy);
+        distanceDisplay.textContent = Math.round(dist) + ' m';
+
+        if (dist < 45 && !hasReachedPortal) {
+          hasReachedPortal = true;
+          onReachPortal();
+        }
+      }
+
+      function onReachPortal() {
+        questionPortal.classList.add('reached');
+        questionPortal.textContent = '✅';
+        worldBubble.textContent = '🎉 Kamu sampai! Quest terbuka!';
+        bloxySprite.classList.remove('walking');
+        quizCard.classList.remove('locked');
+
+        try {
+          localStorage.setItem('biohazard_genetic', JSON.stringify({
+            student: studentName, kelas: studentClass, score: score,
+            status: "portal_reached", lastQuestion: currentQuestionIndex,
+            game: "Roblox_Genetik", timestamp: new Date().toISOString()
+          }));
+        } catch(e) {}
+      }
+
+      // === GERAK ===
+      function moveBloxy(direction) {
+        const cw = gameCanvas.clientWidth || 360;
+        const ch = gameCanvas.clientHeight || 200;
+
+        let newX = bloxyX, newY = bloxyY;
+        if (direction === 'up') newY -= MOVE_STEP;
+        if (direction === 'down') newY += MOVE_STEP;
+        if (direction === 'left') newX -= MOVE_STEP;
+        if (direction === 'right') newX += MOVE_STEP;
+
+        newX = Math.max(0, Math.min(cw - SPRITE_W, newX));
+        newY = Math.max(0, Math.min(ch - SPRITE_H - 18, newY));
+
+        bloxyX = newX;
+        bloxyY = newY;
+        updateSpritePosition();
+        updateDistance();
+
+        bloxySprite.classList.add('walking');
+        clearTimeout(bloxySprite._walkTimer);
+        bloxySprite._walkTimer = setTimeout(() => bloxySprite.classList.remove('walking'), 250);
+      }
+
+      // === KEYBOARD ===
+      document.addEventListener('keydown', (e) => {
+        if (gameWorld.classList.contains('hidden')) return;
+        if (['ArrowUp','w','W'].includes(e.key)) { e.preventDefault(); moveBloxy('up'); }
+        if (['ArrowDown','s','S'].includes(e.key)) { e.preventDefault(); moveBloxy('down'); }
+        if (['ArrowLeft','a','A'].includes(e.key)) { e.preventDefault(); moveBloxy('left'); }
+        if (['ArrowRight','d','D'].includes(e.key)) { e.preventDefault(); moveBloxy('right'); }
+      });
+
+      // === D-PAD ===
+      document.querySelectorAll('.dpad-btn[data-dir]').forEach(btn => {
+        const dir = btn.dataset.dir;
+        let holdInterval;
+
+        btn.addEventListener('click', (e) => { e.preventDefault(); moveBloxy(dir); });
+
+        btn.addEventListener('touchstart', (e) => {
+          e.preventDefault();
+          moveBloxy(dir);
+          holdInterval = setInterval(() => moveBloxy(dir), 100);
+        }, {passive: false});
+
+        btn.addEventListener('touchend', (e) => {
+          e.preventDefault();
+          clearInterval(holdInterval);
+        });
+
+        btn.addEventListener('mousedown', (e) => {
+          e.preventDefault();
+          moveBloxy(dir);
+          holdInterval = setInterval(() => moveBloxy(dir), 100);
+        });
+
+        btn.addEventListener('mouseup', () => clearInterval(holdInterval));
+        btn.addEventListener('mouseleave', () => clearInterval(holdInterval));
+      });
+
+      // === MULAI QUIZ ===
+      function startQuiz() {
+        const nama = inputNama.value.trim();
+        const kelas = inputKelas.value.trim();
+        let valid = true;
+
+        errorNama.classList.remove('show');
+        errorKelas.classList.remove('show');
+
+        if (!nama) { errorNama.classList.add('show'); valid = false; }
+        if (!kelas) { errorKelas.classList.add('show'); valid = false; }
+        if (!valid) return;
+
+        studentName = nama.toUpperCase();
+        studentClass = kelas.toUpperCase();
+
+        try {
+          localStorage.setItem('biohazard_genetic', JSON.stringify({
+            student: studentName, kelas: studentClass, score: 0,
+            status: "in_progress", game: "Roblox_Genetik", timestamp: new Date().toISOString()
+          }));
+        } catch(e) {}
+
+        studentFormCard.classList.add('hidden');
+        progressContainer.classList.remove('hidden');
+        gameWorld.classList.remove('hidden');
+        controlsWrapper.classList.remove('hidden');
+        quizCard.classList.remove('hidden');
+
+        worldBubble.innerHTML = `Halo <b>${studentName}</b>! Gerakkan aku ke portal ❓!`;
+
+        currentQuestionIndex = 0;
+        score = 0;
+        renderQuestion();
+        resetWorld();
+      }
+
+      // === RESET WORLD ===
+      function resetWorld() {
+        hasReachedPortal = false;
+        bloxyX = 15;
+        bloxyY = (gameCanvas.clientHeight || 200) - SPRITE_H - 18;
+        updateSpritePosition();
+
+        randomPortalPosition();
+        updatePortalPosition();
+
+        questionPortal.classList.remove('reached');
+        questionPortal.textContent = '❓';
+        quizCard.classList.add('locked');
+
+        worldBubble.textContent = "Ayo bergerak ke portal ❓!";
+        updateDistance();
+      }
+
+      // === RENDER SOAL ===
+      function renderQuestion() {
+        const q = questions[currentQuestionIndex];
+        questionTextEl.textContent = q.text;
+        optionsContainer.innerHTML = '';
+
+        q.options.forEach((opt, idx) => {
+          const btn = document.createElement('div');
+          btn.className = 'option-btn';
+          btn.dataset.index = idx;
+          btn.innerHTML = `<span class="letter">${opt.letter}</span> ${opt.text}`;
+          btn.addEventListener('click', () => selectOption(idx));
+          optionsContainer.appendChild(btn);
+        });
+
+        selectedOptionIndex = null;
+        answered = false;
+        nextBtn.disabled = true;
+        nextBtn.textContent = 'KONFIRMASI';
+
+        questionCounter.textContent = `QUEST ${currentQuestionIndex + 1}/${questions.length}`;
+        scoreDisplay.textContent = `💰 ${score} R$`;
+
+        document.querySelectorAll('.option-btn').forEach(b => {
+          b.classList.remove('selected', 'correct', 'wrong', 'disabled');
+        });
+      }
+
+      // === PILIH OPSI ===
+      function selectOption(index) {
+        if (answered) return;
+        document.querySelectorAll('.option-btn').forEach((btn, i) => {
+          btn.classList.remove('selected');
+          if (i === index) btn.classList.add('selected');
+        });
+        selectedOptionIndex = index;
+        nextBtn.disabled = false;
+      }
+
+      // === KONFIRMASI ===
+      function confirmAnswer() {
+        if (answered || selectedOptionIndex === null) return;
+        const q = questions[currentQuestionIndex];
+        const isCorrect = (selectedOptionIndex === q.correct);
+
+        document.querySelectorAll('.option-btn').forEach((btn, idx) => {
+          btn.classList.add('disabled');
+          if (idx === q.correct) btn.classList.add('correct');
+          else if (idx === selectedOptionIndex && !isCorrect) btn.classList.add('wrong');
+        });
+
+        if (isCorrect) {
+          score += 20;
+          worldBubble.innerHTML = `✅ Benar! ${q.explanation} +20 R$ 💰`;
+        } else {
+          worldBubble.innerHTML = `❌ Salah. Yang benar: ${q.options[q.correct].letter}. ${q.explanation}`;
+        }
+        scoreDisplay.textContent = `💰 ${score} R$`;
+
+        answered = true;
+        nextBtn.disabled = false;
+        nextBtn.textContent = (currentQuestionIndex === questions.length - 1) ? 'LIHAT REWARD' : 'QUEST BERIKUTNYA ▶';
+
+        try {
+          localStorage.setItem('biohazard_genetic', JSON.stringify({
+            student: studentName, kelas: studentClass, score: score,
+            lastQuestion: currentQuestionIndex, status: "in_progress",
+            game: "Roblox_Genetik", timestamp: new Date().toISOString()
+          }));
+        } catch(e) {}
+      }
+
+      // === NEXT ===
+      function handleNext() {
+        if (!answered) {
+          if (selectedOptionIndex !== null) confirmAnswer();
+          return;
+        }
+        if (currentQuestionIndex < questions.length - 1) {
+          currentQuestionIndex++;
+          renderQuestion();
+          resetWorld();
+        } else {
+          showCertificate();
+        }
+      }
+
+      // === SERTIFIKAT ===
+      function showCertificate() {
+        let predikat, nilaiHuruf;
+        if (score >= 90) { predikat = "LEGENDARY BLOXER"; nilaiHuruf = "A"; }
+        else if (score >= 75) { predikat = "PRO BLOXER"; nilaiHuruf = "B"; }
+        else if (score >= 60) { predikat = "RISING BLOXER"; nilaiHuruf = "C"; }
+        else { predikat = "NEWBIE BLOXER"; nilaiHuruf = "D"; }
+
+        certificateContent.innerHTML = `
+          <div class="certificate-stamp">🏆 ACHIEVEMENT UNLOCKED 🏆</div>
+          <div class="certificate-title">SERTIFIKAT ROBLOX</div>
+          <div style="font-size:0.7rem; letter-spacing:2px; color:#3a3a5a; margin-bottom:10px;">GENETIK BLOX · SUBSTANSI MATERI GENETIK</div>
+          <div class="cert-bloxy">
+            <div class="bloxy-sprite">
+              <div class="bloxy-head">
+                <div class="bloxy-hair"></div>
+                <div class="bloxy-eye left"></div>
+                <div class="bloxy-eye right"></div>
+                <div class="bloxy-mouth"></div>
+              </div>
+              <div class="bloxy-body"></div>
+              <div class="bloxy-legs"><div class="bloxy-leg"></div><div class="bloxy-leg"></div></div>
+            </div>
+          </div>
+          <div style="margin:8px 0 4px; font-style:italic; font-size:0.8rem; color:#3a3a5a;">Diberikan kepada player:</div>
+          <div class="certificate-name">${studentName}</div>
+          <div class="certificate-kelas">GRUP: ${studentClass}</div>
+          <div style="margin:10px 0; font-size:0.75rem; color:#3a3a5a;">Telah menyelesaikan experience<br>"Substansi Materi Genetik"</div>
+          <div class="certificate-predikat">${predikat}</div>
+          <div class="certificate-nilai">${score} / 100</div>
+          <div style="font-size:0.85rem; margin:4px 0; color:#3a3a5a;">Grade: ${nilaiHuruf}</div>
+          <div class="certificate-footer">
+            <div style="font-size:0.7rem;">${new Date().toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'})}</div>
+            <div class="signature">Andreas Hendro</div>
+            <div class="teacher-name">GURU BIOLOGI SMA</div>
+          </div>
+          <div style="margin-top:12px; font-size:0.55rem; color:#6a6a9a; letter-spacing:1px;">⭐ ROBLOX CORP · EDUCATION ⭐</div>
+        `;
+
+        try {
+          localStorage.setItem('biohazard_genetic', JSON.stringify({
+            student: studentName, kelas: studentClass, score: score,
+            predikat: predikat, nilaiHuruf: nilaiHuruf, status: "completed",
+            game: "Roblox_Genetik", timestamp: new Date().toISOString()
+          }));
+        } catch(e) {}
+
+        gameWorld.classList.add('hidden');
+        controlsWrapper.classList.add('hidden');
+        quizCard.classList.add('hidden');
+        progressContainer.classList.add('hidden');
+        certificateCard.classList.remove('hidden');
+        certificateCard.classList.add('fade-in');
+      }
+
+      // === RESTART ===
+      function restartGame() {
+        currentQuestionIndex = 0;
+        score = 0;
+        selectedOptionIndex = null;
+        answered = false;
+        localStorage.removeItem('biohazard_genetic');
+
+        inputNama.value = '';
+        inputKelas.value = '';
+        errorNama.classList.remove('show');
+        errorKelas.classList.remove('show');
+
+        studentFormCard.classList.remove('hidden');
+        studentFormCard.classList.add('fade-in');
+        progressContainer.classList.add('hidden');
+        gameWorld.classList.add('hidden');
+        controlsWrapper.classList.add('hidden');
+        quizCard.classList.add('hidden');
+        certificateCard.classList.add('hidden');
+
+        nextBtn.textContent = 'KONFIRMASI';
+        nextBtn.disabled = true;
+        scoreDisplay.textContent = `💰 0 R$`;
+
+        setTimeout(() => inputNama.focus(), 100);
+      }
+
+      // === INIT ===
+      function init() {
+        startBtn.addEventListener('click', startQuiz);
+        nextBtn.addEventListener('click', handleNext);
+        restartBtn.addEventListener('click', restartGame);
+
+        inputNama.addEventListener('keypress', (e) => { if (e.key === 'Enter') inputKelas.focus(); });
+        inputKelas.addEventListener('keypress', (e) => { if (e.key === 'Enter') startQuiz(); });
+
+        inputNama.focus();
+
+        window.addEventListener('resize', () => {
+          if (!gameWorld.classList.contains('hidden')) {
+            const cw = gameCanvas.clientWidth || 360;
+            const ch = gameCanvas.clientHeight || 200;
+            bloxyX = Math.max(0, Math.min(cw - SPRITE_W, bloxyX));
+            bloxyY = Math.max(0, Math.min(ch - SPRITE_H - 18, bloxyY));
+            updateSpritePosition();
+            updatePortalPosition();
+            updateDistance();
+          }
+        });
+
+        console.log('🎮 Genetik Blox · Karakter Bloxy siap! Guru: Andreas Hendro');
+      }
+
+      init();
+    })();
+  </script>
+</body>
+</html>
